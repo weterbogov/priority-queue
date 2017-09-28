@@ -87,17 +87,4 @@ class Node {
 	}
 }
 
-const root = new Node(15, 42);
-const left = new Node(42, 15);
-const right = new Node(13, 42);
-const childOfLeft = new Node(13, 34);
-const childOfRight = new Node(0, 1);
-
-root.appendChild(left);
-root.appendChild(right);
-left.appendChild(childOfLeft);
-right.appendChild(childOfRight);
-
-childOfLeft.swapWithParent();
-childOfRight.swapWithParent();
 module.exports = Node;
