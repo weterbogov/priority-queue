@@ -40,7 +40,13 @@ class MaxHeap {
 
 	restoreRootFromLastInsertedNode(detached) {
 		var lastInsertedNode = this.parentNodes.pop();
-		if (lastInsertedNode != null && detached != undefined) {
+
+		if (lastInsertedNode != null && typeof detached != 'undefined') {
+			if (lastInsertedNode.parent != null
+				&& lastInsertedNode.parent.right == lastInsertedNode
+				&& lastInsertedNode.parent != detached) {
+				this.parentNodes.unshift(lastInsertedNode.parent);
+			}
 			if (lastInsertedNode.parent != null) {
 				lastInsertedNode.parent.removeChild(lastInsertedNode);
 			}
@@ -94,6 +100,9 @@ class MaxHeap {
 
 	shiftNodeUp(node) {
 		if (node.parent != null) {
+			if (node.parent.priority >= node.priority) {
+				return;
+			}
 			var nodeIndex = this.parentNodes.indexOf(node);
 			var nodeParentIndex = this.parentNodes.indexOf(node.parent);
 			if (nodeIndex != -1) {
@@ -113,24 +122,36 @@ class MaxHeap {
 	}
 
 	shiftNodeDown(node) {
-		if (node.left != null) {
-			var nodeIndex = this.parentNodes.indexOf(node);
-			var nodeChildIndex = this.parentNodes.indexOf(node.left);
-			if (nodeChildIndex != -1) {
-				if (nodeIndex != -1) {
-					var buf = this.parentNodes[nodeIndex];
-					this.parentNodes[nodeIndex] = this.parentNodes[nodeChildIndex];
-					this.parentNodes[nodeChildIndex] = buf;
-				} else {
-					this.parentNodes[nodeChildIndex] = node;
-				}
+		var nodeChild;
+		if (node.left != null && node.right != null) {
+			if (node.left.priority > node.right.priority) {
+				nodeChild = node.left;
+			} else {
+				nodeChild = node.right;
 			}
-			if (node == this.root) {
-				this.root = node.left;
+		} else {
+			if (node.left != null && node.left.priority > node.priority) {
+				nodeChild = node.left;
+			} else {
+				return;
 			}
-			node.left.swapWithParent();
-			this.shiftNodeDown(node);
 		}
+		var nodeIndex = this.parentNodes.indexOf(node);
+		var nodeChildIndex = this.parentNodes.indexOf(nodeChild);
+		if (nodeChildIndex != -1) {
+			if (nodeIndex != -1) {
+				var buf = this.parentNodes[nodeIndex];
+				this.parentNodes[nodeIndex] = this.parentNodes[nodeChildIndex];
+				this.parentNodes[nodeChildIndex] = buf;
+			} else {
+				this.parentNodes[nodeChildIndex] = node;
+			}
+		}
+		if (node == this.root) {
+			this.root = nodeChild;
+		}
+		nodeChild.swapWithParent();
+		this.shiftNodeDown(node);
 	}
 }
 
